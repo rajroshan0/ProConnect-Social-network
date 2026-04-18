@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ProConnect — Admin</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body { font-family: Arial, sans-serif; background: #f3f3f3; }
+
+        /* ---- NAV ---- */
+        nav {
+            background: #222;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav span { font-weight: bold; font-size: 18px; color: #fff; }
+        nav small { color: #aaa; font-size: 12px; margin-left: 10px; }
+
+        .logout {
+            background: none;
+            border: 1px solid #aaa;
+            color: #ddd;
+            padding: 5px 12px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        /* ---- LAYOUT ---- */
+        .container {
+            max-width: 860px;
+            margin: 30px auto;
+            padding: 0 16px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        h2 { font-size: 17px; margin-bottom: 16px; }
+
+        /* ---- TABLE ---- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            text-align: left;
+            padding: 8px 10px;
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+            color: #555;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            color: #222;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        /* ---- ROLE BADGE ---- */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .badge-admin { background: #222; color: #fff; }
+        .badge-user  { background: #eee; color: #555; }
+
+        /* ---- BUTTONS ---- */
+        .btn {
+            padding: 5px 12px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 4px;
+        }
+
+        .btn-promote { background: #222; color: #fff; }
+        .btn-promote:hover { background: #000; }
+        .btn-demote  { background: #eee; color: #555; border: 1px solid #ccc; }
+        .btn-demote:hover  { background: #ddd; }
+        .btn-del     { background: #c00; color: #fff; }
+        .btn-del:hover     { background: #900; }
+        .btn-dark    { background: #333; color: #fff; }
+        .btn-dark:hover    { background: #111; }
+
+        /* ---- ADD SKILL FORM ---- */
+        .add-skill-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .add-skill-form input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .add-skill-form input:focus { border-color: #333; }
+
+        /* ---- SKILLS LIST ---- */
+        .skills-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .skill-chip {
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            padding: 4px 12px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .skill-chip button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #c00;
+            font-size: 14px;
+            padding: 0;
+        }
+
+        .msg { font-size: 13px; margin-top: 10px; }
+        .msg.error   { color: #c00; }
+        .msg.success { color: #080; }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <div style="display:flex;align-items:center;gap:12px">
+        <a href="feed.html" style="font-size:20px;font-weight:800;color:#60a5fa;text-decoration:none;letter-spacing:-0.5px">Pro<span style="color:#93c5fd">Connect</span></a>
+        <small>Admin Panel</small>
+    </div>
+    <button class="logout" onclick="logout()">Logout</button>
+</nav>
+
+<div class="container">
+
+    <!-- USERS TABLE -->
+    <div class="card">
+        <h2>All Users</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Job Title</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="users-body">
+                <tr><td colspan="6" style="text-align:center; color:#888;">Loading...</td></tr>
+            </tbody>
+        </table>
+        <p class="msg" id="users-msg"></p>
+    </div>
+
+    <!-- SKILLS CATALOG -->
+    <div class="card">
+        <h2>Skills Catalog</h2>
+
+        <div class="add-skill-form">
+            <input type="text" id="new-skill" placeholder="New skill name e.g. TypeScript">
+            <button class="btn btn-dark" onclick="addSkill()">Add Skill</button>
+        </div>
+
+        <div class="skills-grid" id="skills-grid">
+            <p style="color:#888; font-size:14px;">Loading...</p>
+        </div>
+
+        <p class="msg" id="skill-msg"></p>
+    </div>
+
+</div>
+
+<script>
+    // ---- Auth guard — admin only ----
+    const token = localStorage.getItem('token');
+    const user  = JSON.parse(localStorage.getItem('user') || '{}');
+
+    if (!token) window.location.href = 'login.html';
+    if (user.role !== 'admin') {
+        alert('Access denied. Admins only.');
+        window.location.href = 'feed.html';
+    }
+
+    const headers = {
+        'Content-Type':  'application/json',
+        'Authorization': 'Bearer ' + token
+    };
+
+    // ---- Load all users ----
+    async function loadUsers() {
+        const tbody = document.getElementById('users-body');
+
+        try {
+            const res   = await fetch('http://localhost:3000/api/admin/users', { headers });
+            const users = await res.json();
+
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888;">No users found.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = users.map(u => `
+                <tr id="user-row-${u.id}">
+                    <td>${u.id}</td>
+                    <td>${u.name}</td>
+                    <td>${u.email}</td>
+                    <td>${u.job_title || '—'}</td>
+                    <td>
+                        <span class="badge ${u.role === 'admin' ? 'badge-admin' : 'badge-user'}">
+                            ${u.role}
+                        </span>
+                    </td>
+                    <td>
+                        ${u.id !== user.id ? `
+                            ${u.role === 'user'
+                                ? `<button class="btn btn-promote" onclick="changeRole(${u.id}, 'admin')">Make Admin</button>`
+                                : `<button class="btn btn-demote"  onclick="changeRole(${u.id}, 'user')">Make User</button>`
+                            }
+                            <button class="btn btn-del" onclick="deleteUser(${u.id})">Delete</button>
+                        ` : '<span style="color:#888; font-size:12px;">— you —</span>'}
+                    </td>
+                </tr>
+            `).join('');
+
+        } catch (err) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#c00;">Could not load users.</td></tr>';
+        }
+    }
+
+    // ---- Change a user's role ----
+    async function changeRole(userId, newRole) {
+        const msg = document.getElementById('users-msg');
+
+        try {
+            const res  = await fetch(`http://localhost:3000/api/admin/users/${userId}/role`, {
+                method:  'PUT',
+                headers,
+                body:    JSON.stringify({ role: newRole })
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                msg.className = 'msg error';
+                msg.textContent = data.error;
+                return;
+            }
+
+            msg.className = 'msg success';
+            msg.textContent = data.message;
+            loadUsers(); // refresh table
+
+        } catch (err) {
+            msg.className = 'msg error';
+            msg.textContent = 'Server error.';
+        }
+    }
+
+    // ---- Delete a user ----
+    async function deleteUser(userId) {
+        if (!confirm('Permanently delete this user and all their data?')) return;
+
+        const msg = document.getElementById('users-msg');
+
+        try {
+            const res  = await fetch(`http://localhost:3000/api/admin/users/${userId}`, {
+                method: 'DELETE',
+                headers
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                msg.className = 'msg error';
+                msg.textContent = data.error;
+                return;
+            }
+
+            msg.className = 'msg success';
+            msg.textContent = 'User deleted.';
+            document.getElementById(`user-row-${userId}`).remove();
+
+        } catch (err) {
+            msg.className = 'msg error';
+            msg.textContent = 'Server error.';
+        }
+    }
+
+    // ---- Load skills catalog ----
+    async function loadSkills() {
+        const grid = document.getElementById('skills-grid');
+
+        try {
+            const res    = await fetch('http://localhost:3000/api/skills');
+            const skills = await res.json();
+
+            if (skills.length === 0) {
+                grid.innerHTML = '<p style="color:#888; font-size:14px;">No skills in catalog yet.</p>';
+                return;
+            }
+
+            grid.innerHTML = skills.map(s => `
+                <div class="skill-chip" id="skill-${s.id}">
+                    ${s.name}
+                    <button onclick="deleteSkill(${s.id})" title="Remove">✕</button>
+                </div>
+            `).join('');
+
+        } catch (err) {
+            grid.innerHTML = '<p style="color:#c00; font-size:14px;">Could not load skills.</p>';
+        }
+    }
+
+    // ---- Add a new skill ----
+    async function addSkill() {
+        const name = document.getElementById('new-skill').value.trim();
+        const msg  = document.getElementById('skill-msg');
+
+        if (!name) {
+            msg.className = 'msg error';
+            msg.textContent = 'Enter a skill name.';
+            return;
+        }
+
+        try {
+            const res  = await fetch('http://localhost:3000/api/skills', {
+                method:  'POST',
+                headers,
+                body:    JSON.stringify({ name })
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                msg.className = 'msg error';
+                msg.textContent = data.error;
+                return;
+            }
+
+            msg.className = 'msg success';
+            msg.textContent = `"${name}" added to catalog.`;
+            document.getElementById('new-skill').value = '';
+            loadSkills();
+
+        } catch (err) {
+            msg.className = 'msg error';
+            msg.textContent = 'Server error.';
+        }
+    }
+
+    // ---- Delete a skill from catalog ----
+    async function deleteSkill(skillId) {
+        if (!confirm('Remove this skill from the catalog? It will also be removed from all profiles.')) return;
+
+        const msg = document.getElementById('skill-msg');
+
+        try {
+            const res  = await fetch(`http://localhost:3000/api/skills/${skillId}`, {
+                method: 'DELETE',
+                headers
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                msg.className = 'msg error';
+                msg.textContent = data.error;
+                return;
+            }
+
+            msg.className = 'msg success';
+            msg.textContent = 'Skill removed from catalog.';
+            document.getElementById(`skill-${skillId}`).remove();
+
+        } catch (err) {
+            msg.className = 'msg error';
+            msg.textContent = 'Server error.';
+        }
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = 'login.html';
+    }
+
+    // ---- Init ----
+    loadUsers();
+    loadSkills();
+</script>
+
+</body>
+</html>

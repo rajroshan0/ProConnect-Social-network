@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProConnect — Register</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px 20px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #0a66c2;
+            letter-spacing: -0.5px;
+            margin-bottom: 24px;
+        }
+
+        .logo span { color: #00a0dc; }
+
+        .card {
+            background: #fff;
+            padding: 36px 40px;
+            width: 100%;
+            max-width: 420px;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        }
+
+        h2 { font-size: 22px; font-weight: 700; color: #111; margin-bottom: 6px; }
+        .sub { color: #666; font-size: 14px; margin-bottom: 28px; }
+
+        label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 6px; }
+
+        .optional { font-size: 11px; font-weight: 400; color: #999; margin-left: 4px; }
+
+        input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid #d0d5dd;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            outline: none;
+            transition: border-color .2s;
+            color: #111;
+        }
+
+        input:focus { border-color: #0a66c2; box-shadow: 0 0 0 3px rgba(10,102,194,0.1); }
+
+        .row { display: flex; gap: 12px; }
+        .row > div { flex: 1; }
+
+        button.primary {
+            width: 100%;
+            padding: 12px;
+            background: #0a66c2;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s;
+            margin-top: 4px;
+        }
+
+        button.primary:hover { background: #004182; }
+
+        .msg { margin-top: 14px; font-size: 13px; text-align: center; padding: 10px; border-radius: 6px; }
+        .msg.error   { color: #c00; background: #fff0f0; }
+        .msg.success { color: #067700; background: #f0fff0; }
+        .msg:empty   { display: none; }
+
+        .divider { text-align: center; margin: 20px 0; color: #aaa; font-size: 13px; position: relative; }
+        .divider::before, .divider::after {
+            content: ''; position: absolute; top: 50%; width: 42%; height: 1px; background: #e5e7eb;
+        }
+        .divider::before { left: 0; } .divider::after { right: 0; }
+
+        .footer { font-size: 13px; text-align: center; color: #555; margin-top: 8px; }
+        .footer a { color: #0a66c2; text-decoration: none; font-weight: 600; }
+        .footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="logo">Pro<span>Connect</span></div>
+
+<div class="card">
+    <h2>Create your account</h2>
+    <p class="sub">Join the professional network</p>
+
+    <label for="name">Full Name</label>
+    <input type="text" id="name" placeholder="Roshan Kumar" autocomplete="name">
+
+    <label for="email">Email address</label>
+    <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+
+    <label for="password">Password <span class="optional">(min 6 chars)</span></label>
+    <input type="password" id="password" placeholder="••••••••" autocomplete="new-password">
+
+    <div class="row">
+        <div>
+            <label for="job_title">Job Title <span class="optional">optional</span></label>
+            <input type="text" id="job_title" placeholder="Backend Engineer">
+        </div>
+        <div>
+            <label for="company">Company <span class="optional">optional</span></label>
+            <input type="text" id="company" placeholder="TechCorp">
+        </div>
+    </div>
+
+    <button class="primary" onclick="register()">Create Account</button>
+
+    <p class="msg" id="msg"></p>
+
+    <div class="divider">or</div>
+
+    <div class="footer">
+        Already have an account? <a href="login.html">Sign in</a>
+    </div>
+</div>
+
+<script>
+    async function register() {
+        const name      = document.getElementById('name').value.trim();
+        const email     = document.getElementById('email').value.trim();
+        const password  = document.getElementById('password').value;
+        const job_title = document.getElementById('job_title').value.trim();
+        const company   = document.getElementById('company').value.trim();
+        const msg       = document.getElementById('msg');
+
+        if (!name || !email || !password) {
+            msg.className = 'msg error';
+            msg.textContent = 'Name, email and password are required.';
+            return;
+        }
+
+        if (password.length < 6) {
+            msg.className = 'msg error';
+            msg.textContent = 'Password must be at least 6 characters.';
+            return;
+        }
+
+        try {
+            const res = await fetch('http://localhost:3000/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password, job_title, company })
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                msg.className = 'msg error';
+                msg.textContent = data.error || 'Registration failed.';
+                return;
+            }
+
+            msg.className = 'msg success';
+            msg.textContent = 'Account created! Taking you to login…';
+            setTimeout(() => window.location.href = 'login.html', 1500);
+
+        } catch (err) {
+            msg.className = 'msg error';
+            msg.textContent = 'Cannot reach server. Is it running?';
+        }
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') register(); });
+</script>
+</body>
+</html>
