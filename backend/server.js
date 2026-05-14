@@ -52,7 +52,7 @@ app.use('/api/admin',    adminRoutes);
 
 // ---- Health check -------------------------------------------
 app.get('/api', (req, res) => {
-    res.json({ message: 'ProConnect API is running ✅' });
+    res.json({ message: 'ProConnect API is running ' });
 });
 
 // ---- Socket.io — Real-time chat -----------------------------
@@ -121,7 +121,7 @@ io.on('connection', (socket) => {
 
 // ---- Start server -------------------------------------------
 server.listen(PORT, () => {
-    console.log(`🚀  Server running at http://localhost:${PORT}`);
+    console.log(` Server running at http://localhost:${PORT}`);
 });
 
 module.exports = app;
