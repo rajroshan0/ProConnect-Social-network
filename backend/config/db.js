@@ -6,18 +6,15 @@
 const mysql  = require('mysql2/promise');
 require('dotenv').config();
 
-const isProduction = process.env.NODE_ENV === 'production' || process.env.DB_HOST !== 'localhost';
-
 const pool = mysql.createPool({
     host:               process.env.DB_HOST     || 'localhost',
     port:               process.env.DB_PORT     || 3306,
     user:               process.env.DB_USER     || 'root',
     password:           process.env.DB_PASSWORD || '',
     database:           process.env.DB_NAME     || 'proconnect',
-    ...(isProduction && { ssl: { rejectUnauthorized: false } }), // required for Aiven cloud MySQL
     waitForConnections: true,
-    connectionLimit:    10,      // max 10 simultaneous connections
-    queueLimit:         0        // unlimited queue
+    connectionLimit:    10,
+    queueLimit:         0
 });
 
 // Quick connectivity check — runs once when the server starts
