@@ -441,7 +441,7 @@
     // ---- Load profile ----
     async function loadProfile() {
         try {
-            const res  = await fetch(`http://localhost:3000/api/profiles/${profile_id}`);
+            const res  = await fetch(`https://proconnect-api.onrender.com/api/profiles/${profile_id}`);
             const data = await res.json();
 
             const init = (data.name || '?').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
@@ -477,7 +477,7 @@
 
     async function loadAllSkills() {
         try {
-            const res    = await fetch('http://localhost:3000/api/skills');
+            const res    = await fetch('https://proconnect-api.onrender.com/api/skills');
             const skills = await res.json();
             const select = document.getElementById('skill-select');
             skills.forEach(s => {
@@ -494,7 +494,7 @@
         const msg      = document.getElementById('skill-msg');
         if (!skill_id) { showMsg(msg, 'error', 'Pick a skill first.'); return; }
         try {
-            const res = await fetch(`http://localhost:3000/api/skills/profile/${profile_id}/skills`, {
+            const res = await fetch(`https://proconnect-api.onrender.com/api/skills/profile/${profile_id}/skills`, {
                 method: 'POST', headers, body: JSON.stringify({ skill_id })
             });
             const data = await res.json();
@@ -507,7 +507,7 @@
     async function removeSkill(skillId) {
         const msg = document.getElementById('skill-msg');
         try {
-            const res = await fetch(`http://localhost:3000/api/skills/profile/${profile_id}/skills/${skillId}`, {
+            const res = await fetch(`https://proconnect-api.onrender.com/api/skills/profile/${profile_id}/skills/${skillId}`, {
                 method: 'DELETE', headers
             });
             if (res.ok) { showMsg(msg, 'success', 'Skill removed.'); loadProfile(); }
@@ -529,7 +529,7 @@
         };
 
         try {
-            const res = await fetch(`http://localhost:3000/api/profiles/${profile_id}`, {
+            const res = await fetch(`https://proconnect-api.onrender.com/api/profiles/${profile_id}`, {
                 method: 'PUT', headers, body: JSON.stringify(body)
             });
             const data = await res.json();
@@ -543,7 +543,7 @@
     // ---- Connections ----
     async function loadConnections() {
         try {
-            const res = await fetch(`http://localhost:3000/api/connections?profile_id=${profile_id}`);
+            const res = await fetch(`https://proconnect-api.onrender.com/api/connections?profile_id=${profile_id}`);
             allConnections = await res.json();
 
             // Update pending badge
@@ -644,7 +644,7 @@
     async function respondConn(connId, status) {
         const msg = document.getElementById('conn-msg');
         try {
-            const res = await fetch(`http://localhost:3000/api/connections/${connId}`, {
+            const res = await fetch(`https://proconnect-api.onrender.com/api/connections/${connId}`, {
                 method: 'PUT', headers, body: JSON.stringify({ status })
             });
             if (res.ok) {
@@ -658,7 +658,7 @@
         if (!confirm('Remove this connection?')) return;
         const msg = document.getElementById('conn-msg');
         try {
-            const res = await fetch(`http://localhost:3000/api/connections/${connId}`, { method: 'DELETE', headers });
+            const res = await fetch(`https://proconnect-api.onrender.com/api/connections/${connId}`, { method: 'DELETE', headers });
             if (res.ok) {
                 showMsg(msg, 'success', 'Removed.');
                 loadConnections();

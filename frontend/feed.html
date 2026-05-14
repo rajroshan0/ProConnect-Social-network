@@ -546,7 +546,7 @@
     // ---- Load connections (for sidebar + search) ----
     async function loadConnections() {
         try {
-            const res = await fetch(`http://localhost:3000/api/connections?profile_id=${profile_id}`);
+            const res = await fetch(`https://proconnect-api.onrender.com/api/connections?profile_id=${profile_id}`);
             myConnections = await res.json();
             renderPendingRequests();
         } catch (e) { /* silent */ }
@@ -590,7 +590,7 @@
 
     async function respondRequest(connId, status) {
         try {
-            const res = await fetch(`http://localhost:3000/api/connections/${connId}`, {
+            const res = await fetch(`https://proconnect-api.onrender.com/api/connections/${connId}`, {
                 method: 'PUT', headers, body: JSON.stringify({ status })
             });
             if (res.ok) {
@@ -604,7 +604,7 @@
     async function loadFeed() {
         const list = document.getElementById('feed-list');
         try {
-            const res   = await fetch('http://localhost:3000/api/posts');
+            const res   = await fetch('https://proconnect-api.onrender.com/api/posts');
             const posts = await res.json();
 
             if (!posts.length) {
@@ -650,7 +650,7 @@
     async function sendConnectionFromFeed(toId, btn) {
         btn.disabled = true;
         try {
-            const res = await fetch('http://localhost:3000/api/connections', {
+            const res = await fetch('https://proconnect-api.onrender.com/api/connections', {
                 method: 'POST', headers,
                 body: JSON.stringify({ from_profile_id: profile_id, to_profile_id: toId })
             });
@@ -675,7 +675,7 @@
         }
 
         try {
-            const res = await fetch('http://localhost:3000/api/posts', {
+            const res = await fetch('https://proconnect-api.onrender.com/api/posts', {
                 method: 'POST', headers,
                 body: JSON.stringify({ content, posted_by_profile_id: profile_id })
             });
@@ -692,7 +692,7 @@
     async function deletePost(postId) {
         if (!confirm('Delete this post?')) return;
         try {
-            const res = await fetch(`http://localhost:3000/api/posts/${postId}`, { method: 'DELETE', headers });
+            const res = await fetch(`https://proconnect-api.onrender.com/api/posts/${postId}`, { method: 'DELETE', headers });
             if (res.ok) document.getElementById(`post-${postId}`)?.remove();
         } catch (e) { alert('Could not delete.'); }
     }
@@ -723,7 +723,7 @@
 
     async function doSearch(q) {
         try {
-            const res     = await fetch(`http://localhost:3000/api/profiles?q=${encodeURIComponent(q)}`);
+            const res     = await fetch(`https://proconnect-api.onrender.com/api/profiles?q=${encodeURIComponent(q)}`);
             const results = await res.json();
 
             const box = document.getElementById('search-results');
@@ -764,7 +764,7 @@
     async function connectFromSearch(toId, btn) {
         btn.disabled = true;
         try {
-            const res = await fetch('http://localhost:3000/api/connections', {
+            const res = await fetch('https://proconnect-api.onrender.com/api/connections', {
                 method: 'POST', headers,
                 body: JSON.stringify({ from_profile_id: profile_id, to_profile_id: toId })
             });

@@ -454,7 +454,7 @@
 
     // ---- Connect Socket.io ----
     function connectSocket() {
-        socket = io('http://localhost:3000');
+        socket = io('https://proconnect-api.onrender.com');
 
         socket.on('connect', () => {
             socket.emit('register', profile_id);
@@ -479,7 +479,7 @@
     // ---- Load recent contacts ----
     async function loadContacts() {
         try {
-            const res      = await fetch('http://localhost:3000/api/messages/contacts', { headers });
+            const res      = await fetch('https://proconnect-api.onrender.com/api/messages/contacts', { headers });
             const contacts = await res.json();
 
             const list = document.getElementById('contacts-list');
@@ -543,7 +543,7 @@
         msgBox.innerHTML = '<div style="text-align:center;padding:20px;color:#aaa;font-size:13px">Loading…</div>';
 
         try {
-            const res  = await fetch(`http://localhost:3000/api/messages/conversation/${userId}`, { headers });
+            const res  = await fetch(`https://proconnect-api.onrender.com/api/messages/conversation/${userId}`, { headers });
             const msgs = await res.json();
 
             if (!msgs.length) {
@@ -625,7 +625,7 @@
 
     async function doSearch(q) {
         try {
-            const res     = await fetch(`http://localhost:3000/api/profiles?q=${encodeURIComponent(q)}`);
+            const res     = await fetch(`https://proconnect-api.onrender.com/api/profiles?q=${encodeURIComponent(q)}`);
             const results = await res.json();
             const filtered = results.filter(p => p.id !== profile_id).slice(0, 6);
 
@@ -695,7 +695,7 @@
     const params = new URLSearchParams(window.location.search);
     const withId = params.get('with');
     if (withId) {
-        fetch(`http://localhost:3000/api/profiles/${withId}`)
+        fetch(`https://proconnect-api.onrender.com/api/profiles/${withId}`)
             .then(r => r.json())
             .then(p => openChat(p.id, p.name, p.job_title || ''))
             .catch(() => {});

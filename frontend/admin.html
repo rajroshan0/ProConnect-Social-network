@@ -218,7 +218,7 @@
         const tbody = document.getElementById('users-body');
 
         try {
-            const res   = await fetch('http://localhost:3000/api/admin/users', { headers });
+            const res   = await fetch('https://proconnect-api.onrender.com/api/admin/users', { headers });
             const users = await res.json();
 
             if (users.length === 0) {
@@ -259,7 +259,7 @@
         const msg = document.getElementById('users-msg');
 
         try {
-            const res  = await fetch(`http://localhost:3000/api/admin/users/${userId}/role`, {
+            const res  = await fetch(`https://proconnect-api.onrender.com/api/admin/users/${userId}/role`, {
                 method:  'PUT',
                 headers,
                 body:    JSON.stringify({ role: newRole })
@@ -289,7 +289,7 @@
         const msg = document.getElementById('users-msg');
 
         try {
-            const res  = await fetch(`http://localhost:3000/api/admin/users/${userId}`, {
+            const res  = await fetch(`https://proconnect-api.onrender.com/api/admin/users/${userId}`, {
                 method: 'DELETE',
                 headers
             });
@@ -316,7 +316,7 @@
         const grid = document.getElementById('skills-grid');
 
         try {
-            const res    = await fetch('http://localhost:3000/api/skills');
+            const res    = await fetch('https://proconnect-api.onrender.com/api/skills');
             const skills = await res.json();
 
             if (skills.length === 0) {
@@ -348,7 +348,7 @@
         }
 
         try {
-            const res  = await fetch('http://localhost:3000/api/skills', {
+            const res  = await fetch('https://proconnect-api.onrender.com/api/skills', {
                 method:  'POST',
                 headers,
                 body:    JSON.stringify({ name })
@@ -379,7 +379,7 @@
         const msg = document.getElementById('skill-msg');
 
         try {
-            const res  = await fetch(`http://localhost:3000/api/skills/${skillId}`, {
+            const res  = await fetch(`https://proconnect-api.onrender.com/api/skills/${skillId}`, {
                 method: 'DELETE',
                 headers
             });
